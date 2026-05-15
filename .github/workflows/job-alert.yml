@@ -1,20 +1,9 @@
 name: Job Alert Bot
 
-# ─────────────────────────────────────────────────────────────
-# Schedule: Philippine Time (PHT = UTC+8)
-#
-#   7:00 AM PHT  →  11:00 PM UTC  →  cron "0 23 * * *"
-#  12:00 PM PHT  →   4:00 AM UTC  →  cron "0 4 * * *"
-#   6:00 PM PHT  →  10:00 AM UTC  →  cron "0 10 * * *"
-#
-# workflow_dispatch = manual trigger from GitHub Actions tab
-# ─────────────────────────────────────────────────────────────
+# Triggered externally by cron-job.org via GitHub API
+# Schedule is managed on cron-job.org set to PHT timezone
 on:
-  schedule:
-    - cron: "0 23 * * *"   # 7:00 AM PHT  (primary morning run)
-    - cron: "0 4 * * *"    # 12:00 PM PHT (midday run)
-    - cron: "0 10 * * *"   # 6:00 PM PHT  (evening run)
-  workflow_dispatch:        # manual trigger anytime from GitHub UI
+  workflow_dispatch:
 
 jobs:
   run-bot:
