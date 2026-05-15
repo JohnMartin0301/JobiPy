@@ -1,0 +1,12 @@
+.env
+data/jobs.db
+data/bot.log
+data/fb_cookies.json
+__pycache__/
+**/__pycache__/
+*.pyc
+*.pyo
+.venv/
+venv/
+*.egg-info/
+.DS_Store

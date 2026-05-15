@@ -1,0 +1,88 @@
+name: Job Alert Bot
+
+# ─────────────────────────────────────────────────────────────
+# Schedule: Philippine Time (PHT = UTC+8)
+#
+#   7:00 AM PHT  →  11:00 PM UTC  →  cron "0 23 * * *"
+#  12:00 PM PHT  →   4:00 AM UTC  →  cron "0 4 * * *"
+#   6:00 PM PHT  →  10:00 AM UTC  →  cron "0 10 * * *"
+#
+# workflow_dispatch = manual trigger from GitHub Actions tab
+# ─────────────────────────────────────────────────────────────
+on:
+  schedule:
+    - cron: "0 23 * * *"   # 7:00 AM PHT  (primary morning run)
+    - cron: "0 4 * * *"    # 12:00 PM PHT (midday run)
+    - cron: "0 10 * * *"   # 6:00 PM PHT  (evening run)
+  workflow_dispatch:        # manual trigger anytime from GitHub UI
+
+jobs:
+  run-bot:
+    name: Run Job Alert Bot
+    runs-on: ubuntu-latest
+    timeout-minutes: 15     # kill if it hangs past 15 minutes
+
+    steps:
+
+      # ── 1. Checkout code
+      - name: 📥 Checkout repository
+        uses: actions/checkout@v4
+
+      # ── 2. Set up Python
+      - name: 🐍 Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      # ── 3. Install Python dependencies
+      - name: 📦 Install dependencies
+        run: pip install -r requirements.txt
+
+      # ── 4. Install Playwright + Chromium for LinkedIn scraper
+      - name: 🎭 Install Playwright Chromium
+        run: playwright install chromium --with-deps
+
+      # ── 5. Restore SQLite DB from cache so duplicate detection
+      #       works across runs — jobs seen this morning won't
+      #       re-alert at noon or evening
+      - name: 💾 Restore jobs database from cache
+        uses: actions/cache@v4
+        with:
+          path: data/jobs.db
+          key: jobs-db-${{ github.run_id }}
+          restore-keys: |
+            jobs-db-
+
+      # ── 6. Create data directory if it doesn't exist yet
+      - name: 📁 Prepare data directory
+        run: mkdir -p data
+
+      # ── 7. Run the full pipeline
+      - name: 🚀 Run Job Alert Bot
+        env:
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          GMAIL_SENDER:        ${{ secrets.GMAIL_SENDER }}
+          GMAIL_PASSWORD:      ${{ secrets.GMAIL_PASSWORD }}
+          GMAIL_RECIPIENT:     ${{ secrets.GMAIL_RECIPIENT }}
+        run: python main.py
+
+      # ── 8. Upload run log as downloadable artifact
+      #       Visible under Actions → your run → Artifacts
+      #       Auto-deleted after 7 days
+      - name: 📋 Upload run log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: bot-log-${{ github.run_number }}
+          path: data/bot.log
+          retention-days: 7
+
+      # ── 9. Upload SQLite DB for manual inspection if needed
+      - name: 🗄️ Upload jobs database
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: jobs-db-${{ github.run_number }}
+          path: data/jobs.db
+          retention-days: 7
