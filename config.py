@@ -56,10 +56,12 @@ HIGH_RELIABILITY_SOURCES = {"google_jobs", "indeed", "onlinejobs_ph", "remoteok"
 # Keyword lists
 # ─────────────────────────────────────────────
 INCLUDE_KEYWORDS = [
-    "python", "flask", "fastapi", "api", "backend",
-    "automation", "software developer", "software engineer",
-    "web developer", "full stack", "fullstack", "django",
-    "developer", "engineer",
+    "python", "flask", "fastapi", "django",
+    "api development", "backend development",
+    "backend developer", "backend engineer",
+    "software developer", "software engineer",
+    "automation engineer", "python developer",
+    "python engineer",
 ]
 
 LEVEL_KEYWORDS = [
@@ -68,8 +70,7 @@ LEVEL_KEYWORDS = [
     "graduate", "trainee", "junior level", "0-2 years",
     "0 to 2 years", "less than 1 year", "new grad",
     "no experience", "open to fresh", "fresh grad",
-    "newly grad", "recent grad", "beginner", "starter",
-    "apprentice", "part time", "part-time", "freelance",
+    "newly grad", "recent grad", "beginner", "apprentice",
 ]
 
 LOCATION_KEYWORDS = [
@@ -83,6 +84,10 @@ LOCATION_KEYWORDS = [
 EXCLUDE_KEYWORDS = [
     "senior", " sr ", "sr.", "lead", "principal",
     "manager", "director", "architect",
+    "credit", "marketing", "virtual assistant",
+    "seo", "amazon", "tiktok", "sales", "accounting",
+    "bookkeeper", "customer service", "data entry",
+    "social media", "graphic design", "video editor",
 ]
 
 # ─────────────────────────────────────────────
@@ -93,8 +98,8 @@ EXCLUDE_KEYWORDS = [
 REMOTE_ONLY_SOURCES = {"onlinejobs_ph", "remoterocketship", "remoteok"}
 
 # Sources where junior/entry-level is implied by the platform
-# (e.g. OnlineJobs.ph targets Filipino freelancers/remote workers)
-JUNIOR_IMPLIED_SOURCES = {"onlinejobs_ph"}
+# Kept empty — level check must always pass to avoid irrelevant jobs
+JUNIOR_IMPLIED_SOURCES: set = set()
 
 # ─────────────────────────────────────────────
 # Scoring weights
