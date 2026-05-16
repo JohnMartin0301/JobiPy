@@ -82,7 +82,7 @@ def _search_google_jobs(query: str) -> list[dict]:
                     job_title=title,
                     company=company,
                     location=loc or "Remote",
-                    description=f"{title} {loc}",
+                    description=f"{title} {company} {loc} {query} remote",
                     source=_SOURCE,
                     job_url=href,
                     posted_date_raw=date or None,

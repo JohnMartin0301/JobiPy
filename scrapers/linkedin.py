@@ -20,9 +20,18 @@ logger = logging.getLogger(__name__)
 _SOURCE = "linkedin"
 
 _SEARCH_URLS = [
-    "https://www.linkedin.com/jobs/search/?keywords=junior%20python%20developer&f_WT=2&f_E=1%2C2&sortBy=DD",
-    "https://www.linkedin.com/jobs/search/?keywords=entry%20level%20flask%20fastapi&f_WT=2&f_E=1%2C2&sortBy=DD",
-    "https://www.linkedin.com/jobs/search/?keywords=python%20backend%20intern%20junior&f_WT=2&f_E=1%2C2&sortBy=DD",
+    (
+        "https://www.linkedin.com/jobs/search/?keywords=junior%20python%20developer&f_WT=2&f_E=1%2C2&sortBy=DD",
+        "junior python developer remote entry level"
+    ),
+    (
+        "https://www.linkedin.com/jobs/search/?keywords=entry%20level%20flask%20fastapi&f_WT=2&f_E=1%2C2&sortBy=DD",
+        "entry level flask fastapi remote junior"
+    ),
+    (
+        "https://www.linkedin.com/jobs/search/?keywords=python%20backend%20intern%20junior&f_WT=2&f_E=1%2C2&sortBy=DD",
+        "python backend intern junior remote entry level"
+    ),
 ]
 # f_WT=2 → Remote   f_E=1,2 → Internship + Entry Level   sortBy=DD → Date
 
@@ -35,7 +44,7 @@ def _playwright_available() -> bool:
         return False
 
 
-def _scrape_url(page, url: str) -> list[dict]:
+def _scrape_url(page, url: str, search_context: str = "") -> list[dict]:
     """Scrape a single LinkedIn search URL using an open Playwright page."""
     jobs = []
     try:
@@ -65,12 +74,17 @@ def _scrape_url(page, url: str) -> list[dict]:
                 if not title:
                     continue
 
+                # Enrich description with search context so keyword filter
+                # can match against python/junior/remote terms even when
+                # they don't appear in the scraped title/company/location
+                enriched_desc = f"{title} {company} {loc} {search_context}"
+
                 jobs.append(
                     make_job(
                         job_title=title,
                         company=company,
-                        location=loc,
-                        description=f"{title} {company} {loc}",
+                        location=loc if loc else "Remote",
+                        description=enriched_desc,
                         source=_SOURCE,
                         job_url=href or url,
                         posted_date_raw=date or None,
@@ -108,8 +122,8 @@ def scrape() -> list[dict]:
         )
         page = context.new_page()
 
-        for url in _SEARCH_URLS:
-            for job in _scrape_url(page, url):
+        for url, search_context in _SEARCH_URLS:
+            for job in _scrape_url(page, url, search_context):
                 if job["job_url"] not in seen_urls:
                     seen_urls.add(job["job_url"])
                     all_jobs.append(job)
