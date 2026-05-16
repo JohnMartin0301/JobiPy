@@ -95,11 +95,14 @@ EXCLUDE_KEYWORDS = [
 # Remote-only sources skip the location filter
 # because every job on them is remote by definition
 # ─────────────────────────────────────────────
-REMOTE_ONLY_SOURCES = {"onlinejobs_ph", "remoterocketship", "remoteok"}
+REMOTE_ONLY_SOURCES = {"remoterocketship", "remoteok"}
 
 # Sources where junior/entry-level is implied by the platform
 # Kept empty — level check must always pass to avoid irrelevant jobs
 JUNIOR_IMPLIED_SOURCES: set = set()
+
+# Sources that are disabled due to consistently returning irrelevant results
+DISABLED_SOURCES: set = {"onlinejobs_ph"}
 
 # ─────────────────────────────────────────────
 # Scoring weights

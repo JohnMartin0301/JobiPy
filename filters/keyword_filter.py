@@ -2,12 +2,13 @@
 filters/keyword_filter.py — Keyword-based relevance gate.
 
 A job passes when:
-  1. Its title/description contains at least ONE include keyword.
-  2. Its title/description contains at least ONE level keyword
-     — OR the source is a junior-implied platform (e.g. OnlineJobs.ph).
-  3. Its location/description contains at least ONE location keyword
-     — OR the source is a remote-only platform (e.g. OnlineJobs.ph, RemoteOK).
-  4. Its title/description does NOT contain any exclude keyword.
+  1. Source is not in DISABLED_SOURCES.
+  2. Its title OR description contains at least ONE Python-specific keyword.
+  3. Its title/description contains at least ONE level keyword
+     — OR the source is a junior-implied platform.
+  4. Its location/description contains at least ONE location keyword
+     — OR the source is a remote-only platform.
+  5. Its title/description does NOT contain any exclude keyword.
 """
 
 import re
@@ -19,9 +20,19 @@ from config import (
     EXCLUDE_KEYWORDS,
     REMOTE_ONLY_SOURCES,
     JUNIOR_IMPLIED_SOURCES,
+    DISABLED_SOURCES,
 )
 
 logger = logging.getLogger(__name__)
+
+# Keywords that MUST appear in the job title specifically
+# to ensure the role is genuinely Python/tech related
+TITLE_KEYWORDS = [
+    "python", "flask", "fastapi", "django",
+    "backend", "software", "developer", "engineer",
+    "automation", "api", "fullstack", "full stack",
+    "programmer", "coding", "web dev",
+]
 
 
 def _lower(text: str) -> str:
@@ -51,33 +62,43 @@ def passes_keyword_filter(job: dict) -> bool:
     Expected job keys (all optional but at least some must be present):
         job_title, description, location, source, company
     """
+    source   = _lower(job.get("source", "")).replace(" ", "_")
     title    = _lower(job.get("job_title", ""))
     desc     = _lower(job.get("description", ""))
     location = _lower(job.get("location", ""))
-    source   = _lower(job.get("source", "")).replace(" ", "_")
     combined = f"{title} {desc}"
 
-    # ── Hard exclusion first (fastest gate)
+    # ── Gate 0: skip disabled sources entirely
+    if source in DISABLED_SOURCES:
+        logger.debug("EXCLUDED (disabled source %s): %s", source, job.get("job_title"))
+        return False
+
+    # ── Gate 1: Hard exclusion (seniority + irrelevant industries)
     if _matches_exclude(combined, EXCLUDE_KEYWORDS):
         logger.debug("EXCLUDED (senior/lead/etc.): %s", job.get("job_title"))
         return False
 
-    # ── Must match a tech keyword
-    if not _matches_any(combined, INCLUDE_KEYWORDS):
-        logger.debug("EXCLUDED (no tech keyword): %s", job.get("job_title"))
+    # ── Gate 2: Title must contain a tech/Python keyword
+    # This is the strictest gate — the job TITLE itself must signal
+    # it is a tech role, not just the description
+    if not _matches_any(title, TITLE_KEYWORDS):
+        logger.debug("EXCLUDED (title not tech): %s", job.get("job_title"))
         return False
 
-    # ── Must match a level keyword
-    # Skip this check for junior-implied sources — their entire platform
-    # targets entry-level/freelance workers so the keyword may not appear
+    # ── Gate 3: Must match a Python-specific keyword in title or description
+    if not _matches_any(combined, INCLUDE_KEYWORDS):
+        logger.debug("EXCLUDED (no Python keyword): %s", job.get("job_title"))
+        return False
+
+    # ── Gate 4: Must match a level keyword
+    # Skip for junior-implied sources
     if source not in JUNIOR_IMPLIED_SOURCES:
         if not _matches_any(combined, LEVEL_KEYWORDS):
             logger.debug("EXCLUDED (no level keyword): %s", job.get("job_title"))
             return False
 
-    # ── Must be remote/hybrid
-    # Skip this check for remote-only sources — every job on them is remote
-    # by definition so requiring the keyword would wrongly reject valid jobs
+    # ── Gate 5: Must be remote/hybrid
+    # Skip for remote-only sources
     if source not in REMOTE_ONLY_SOURCES:
         location_text = f"{location} {combined}"
         if not _matches_any(location_text, LOCATION_KEYWORDS):

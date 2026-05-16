@@ -22,7 +22,7 @@ import argparse
 from datetime import datetime
 
 import database
-from config import SCRAPE_INTERVAL_MINUTES, DISCORD_MAX_JOBS
+from config import SCRAPE_INTERVAL_MINUTES, DISCORD_MAX_JOBS, DISABLED_SOURCES
 
 from scrapers import google_jobs, indeed, jobstreet, linkedin, facebook, onlinejobs, remoterocketship
 from filters.keyword_filter  import passes_keyword_filter
