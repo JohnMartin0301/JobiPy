@@ -56,38 +56,83 @@ HIGH_RELIABILITY_SOURCES = {"google_jobs", "indeed", "onlinejobs_ph", "remoteok"
 # Keyword lists
 # ─────────────────────────────────────────────
 INCLUDE_KEYWORDS = [
-    "python", "flask", "fastapi", "django",
-    "api development", "backend development",
-    "backend developer", "backend engineer",
-    "software developer", "software engineer",
-    "automation engineer", "python developer",
+    # Exact terms from the original spec
+    "python",
+    "flask",
+    "fastapi",
+    "api",
+    "backend",
+    "automation",
+    "software developer",
+    "software engineer",
+    # Additional Python-specific terms
+    "django",
+    "python developer",
     "python engineer",
+    "backend developer",
+    "backend engineer",
+    "automation engineer",
+    "api developer",
+    "api engineer",
 ]
 
 LEVEL_KEYWORDS = [
-    "junior", "entry level", "entry-level", "associate",
-    "fresh graduate", "no experience required", "intern",
-    "graduate", "trainee", "junior level", "0-2 years",
-    "0 to 2 years", "less than 1 year", "new grad",
-    "no experience", "open to fresh", "fresh grad",
-    "newly grad", "recent grad", "beginner", "apprentice",
+    # Exact terms from the original spec
+    "junior",
+    "entry level",
+    "entry-level",
+    "associate",
+    "fresh graduate",
+    "no experience required",
+    "intern",
+    "graduate",
+    # Additional common variations
+    "trainee",
+    "junior level",
+    "0-2 years",
+    "0 to 2 years",
+    "less than 1 year",
+    "new grad",
+    "no experience",
+    "open to fresh",
+    "fresh grad",
+    "newly grad",
+    "recent grad",
+    "beginner",
+    "apprentice",
 ]
 
 LOCATION_KEYWORDS = [
-    "remote", "wfh", "work from home", "work-from-home",
-    "hybrid", "anywhere", "worldwide", "global",
-    "online", "virtual", "telecommute", "philippines",
-    "work anywhere", "home based", "home-based",
-    "distributed", "flexible",
+    # Exact terms from the original spec
+    "remote",
+    "wfh",
+    "work from home",
+    "hybrid",
+    # Additional common variations
+    "work-from-home",
+    "anywhere",
+    "worldwide",
+    "global",
+    "online",
+    "virtual",
+    "telecommute",
+    "home based",
+    "home-based",
+    "distributed",
+    "flexible",
+    "philippines",
 ]
 
 EXCLUDE_KEYWORDS = [
-    "senior", " sr ", "sr.", "lead", "principal",
-    "manager", "director", "architect",
-    "credit", "marketing", "virtual assistant",
-    "seo", "amazon", "tiktok", "sales", "accounting",
-    "bookkeeper", "customer service", "data entry",
-    "social media", "graphic design", "video editor",
+    # Exact terms from the original spec
+    "senior",
+    " sr ",
+    "sr.",
+    "lead",
+    "principal",
+    "manager",
+    "director",
+    "architect",
 ]
 
 # ─────────────────────────────────────────────

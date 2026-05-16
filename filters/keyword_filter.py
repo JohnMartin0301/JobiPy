@@ -3,7 +3,7 @@ filters/keyword_filter.py — Keyword-based relevance gate.
 
 A job passes when:
   1. Source is not in DISABLED_SOURCES.
-  2. Its title OR description contains at least ONE Python-specific keyword.
+  2. Its title/description contains at least ONE Python-specific keyword.
   3. Its title/description contains at least ONE level keyword
      — OR the source is a junior-implied platform.
   4. Its location/description contains at least ONE location keyword
@@ -25,13 +25,20 @@ from config import (
 
 logger = logging.getLogger(__name__)
 
-# Keywords that MUST appear in the job title specifically
-# to ensure the role is genuinely Python/tech related
-TITLE_KEYWORDS = [
-    "python", "flask", "fastapi", "django",
-    "backend", "software", "developer", "engineer",
-    "automation", "api", "fullstack", "full stack",
-    "programmer", "coding", "web dev",
+# If ANY of these appear in the title the job is clearly non-tech
+# and gets rejected immediately regardless of description
+NON_TECH_TITLE_KEYWORDS = [
+    "credit", "dispute", "marketing", "virtual assistant",
+    "seo specialist", "ads manager", "amazon", "tiktok",
+    "sales", "accounting", "bookkeeper", "customer service",
+    "data entry", "social media", "graphic design", "video edit",
+    "chat support", "lead generation", "recruiter", "hr ",
+    "healthcare", "nurse", "medical", "dental", "insurance",
+    "real estate", "property", "logistics", "driver",
+    "content writer", "copywriter", "transcriber", "proofreader",
+    "e-commerce", "ecommerce", "dropship", "product lister",
+    "cruise", "travel", "hotel", "restaurant", "chef",
+    "3d design", "cad design", "interior design",
 ]
 
 
@@ -73,31 +80,29 @@ def passes_keyword_filter(job: dict) -> bool:
         logger.debug("EXCLUDED (disabled source %s): %s", source, job.get("job_title"))
         return False
 
-    # ── Gate 1: Hard exclusion (seniority + irrelevant industries)
+    # ── Gate 1: reject clearly non-tech job titles immediately
+    if _matches_any(title, NON_TECH_TITLE_KEYWORDS):
+        logger.debug("EXCLUDED (non-tech title): %s", job.get("job_title"))
+        return False
+
+    # ── Gate 2: hard exclusion (seniority terms)
     if _matches_exclude(combined, EXCLUDE_KEYWORDS):
         logger.debug("EXCLUDED (senior/lead/etc.): %s", job.get("job_title"))
         return False
 
-    # ── Gate 2: Title must contain a tech/Python keyword
-    # This is the strictest gate — the job TITLE itself must signal
-    # it is a tech role, not just the description
-    if not _matches_any(title, TITLE_KEYWORDS):
-        logger.debug("EXCLUDED (title not tech): %s", job.get("job_title"))
-        return False
-
-    # ── Gate 3: Must match a Python-specific keyword in title or description
+    # ── Gate 3: must match a Python/tech keyword in title OR description
     if not _matches_any(combined, INCLUDE_KEYWORDS):
         logger.debug("EXCLUDED (no Python keyword): %s", job.get("job_title"))
         return False
 
-    # ── Gate 4: Must match a level keyword
+    # ── Gate 4: must match a level keyword
     # Skip for junior-implied sources
     if source not in JUNIOR_IMPLIED_SOURCES:
         if not _matches_any(combined, LEVEL_KEYWORDS):
             logger.debug("EXCLUDED (no level keyword): %s", job.get("job_title"))
             return False
 
-    # ── Gate 5: Must be remote/hybrid
+    # ── Gate 5: must be remote/hybrid
     # Skip for remote-only sources
     if source not in REMOTE_ONLY_SOURCES:
         location_text = f"{location} {combined}"
