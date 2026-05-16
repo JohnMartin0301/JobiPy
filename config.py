@@ -50,7 +50,7 @@ FRESHNESS_BONUS = {
 # ─────────────────────────────────────────────
 # High-reliability sources (missing date allowed)
 # ─────────────────────────────────────────────
-HIGH_RELIABILITY_SOURCES = {"google_jobs", "indeed"}
+HIGH_RELIABILITY_SOURCES = {"google_jobs", "indeed", "onlinejobs_ph", "remoteok"}
 
 # ─────────────────────────────────────────────
 # Keyword lists
@@ -58,22 +58,43 @@ HIGH_RELIABILITY_SOURCES = {"google_jobs", "indeed"}
 INCLUDE_KEYWORDS = [
     "python", "flask", "fastapi", "api", "backend",
     "automation", "software developer", "software engineer",
+    "web developer", "full stack", "fullstack", "django",
+    "developer", "engineer",
 ]
 
 LEVEL_KEYWORDS = [
     "junior", "entry level", "entry-level", "associate",
     "fresh graduate", "no experience required", "intern",
-    "graduate", "trainee",
+    "graduate", "trainee", "junior level", "0-2 years",
+    "0 to 2 years", "less than 1 year", "new grad",
+    "no experience", "open to fresh", "fresh grad",
+    "newly grad", "recent grad", "beginner", "starter",
+    "apprentice", "part time", "part-time", "freelance",
 ]
 
 LOCATION_KEYWORDS = [
-    "remote", "wfh", "work from home", "work-from-home", "hybrid",
+    "remote", "wfh", "work from home", "work-from-home",
+    "hybrid", "anywhere", "worldwide", "global",
+    "online", "virtual", "telecommute", "philippines",
+    "work anywhere", "home based", "home-based",
+    "distributed", "flexible",
 ]
 
 EXCLUDE_KEYWORDS = [
     "senior", " sr ", "sr.", "lead", "principal",
     "manager", "director", "architect",
 ]
+
+# ─────────────────────────────────────────────
+# Source bypass rules
+# Remote-only sources skip the location filter
+# because every job on them is remote by definition
+# ─────────────────────────────────────────────
+REMOTE_ONLY_SOURCES = {"onlinejobs_ph", "remoterocketship", "remoteok"}
+
+# Sources where junior/entry-level is implied by the platform
+# (e.g. OnlineJobs.ph targets Filipino freelancers/remote workers)
+JUNIOR_IMPLIED_SOURCES = {"onlinejobs_ph"}
 
 # ─────────────────────────────────────────────
 # Scoring weights
@@ -87,7 +108,7 @@ SCORE_WEIGHTS = {
     "good_source":   10,   # LinkedIn / Indeed / JobStreet
 }
 
-GOOD_SOURCES_FOR_SCORE = {"linkedin", "indeed", "jobstreet", "onlinejobs_ph"}
+GOOD_SOURCES_FOR_SCORE = {"linkedin", "indeed", "jobstreet", "onlinejobs_ph", "remoteok"}
 
 # ─────────────────────────────────────────────
 # URL validation
